@@ -30,3 +30,19 @@ async function verificar(req, res) {
 app.post("/verificar", verificar);
 app.listen(3000); 
 
+
+
+//Ingresar usuario
+async function regUsuario(req, res) {
+    try {
+        
+        const { nombreusuario, clave,tipousuario } = req.body; 
+            await pool.query("insert into usuarios(nombreusuario,clave, tipousuario) values ('" + nombreusuario + "','" + clave + "','"+ tipousuario + "')");
+              res.json({ message: " agregado exitosamente" });
+        
+    } catch (error) {
+        console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.post("/regUsuario", regUsuario);
