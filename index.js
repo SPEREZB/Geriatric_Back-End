@@ -17,7 +17,7 @@ const pool = new Pool({
     port: '5432'
 })
  
-//Obtener datos de Cliente
+//Obtener datos de prueba
 async function verificar(req, res) {
     try {  
         res.json({ message: "BUENO" });
@@ -32,7 +32,7 @@ app.listen(3000);
 
 
 
-//Ingresar usuario
+//Registrar usuario
 async function regUsuario(req, res) {
     try {
         
@@ -46,3 +46,19 @@ async function regUsuario(req, res) {
     }
 } 
 app.post("/regUsuario", regUsuario);
+
+
+//Obtener citas medicas
+async function getCitas(req, res) {
+    try {
+        let datos = await pool.query("select * from citas"); 
+        res.json(datos.rows); 
+        console.log(datos.rows);
+       
+
+    } catch (error) {
+        console.log(error);
+        console.log("hola");
+    }
+}
+app.get("/getCitas", getCitas);
