@@ -20,10 +20,27 @@ const pool = new Pool({
 //Obtener datos de prueba
 async function verificar(req, res) {
     try {  
-        res.json({ message: "BUENO" });
-    } catch (error) {
-        console.log('aa'); 
-        console.log(error);  
+        const { nombreusuario, clave } = req.body; 
+        let datos;  
+        let size= await pool.query("select * from usuarios"); 
+       for (let i = 1; i <= size.rows.length; i++) { 
+
+        datos = await pool.query("select nombreusuario from usuarios where id_usuario="+i);
+   
+
+        if(datos.rows[0].nombreusuario==nombreusuario)    
+        {
+            i=size+1;
+            res.json({ message: "INGRESO EXITOSO" }); 
+        }
+          else{
+            i=size+1;
+            res.json({ message: "CREDENCIALES INCORRECTAS" });
+          }
+
+       } 
+    } catch (error) { 
+        console.log("error");  
         res.json({ message: " Valor ingresado no valido" });
     } 
 } 
