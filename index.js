@@ -47,6 +47,21 @@ async function regUsuario(req, res) {
 } 
 app.post("/regUsuario", regUsuario);
 
+//Obtener usuario
+async function getUsuario(req, res) {
+    try {
+        
+        const { nombreusuario, clave,tipousuario } = req.body; 
+            await pool.query("select * from usuarios");
+              res.json({ message: " agregado exitosamente" });
+        
+    } catch (error) {
+        console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.get("/getUsuario", getUsuario);
+
 
 //Obtener citas medicas
 async function getCitas(req, res) {
@@ -62,3 +77,19 @@ async function getCitas(req, res) {
     }
 }
 app.get("/getCitas", getCitas);
+
+// Registrar diagnosticos
+async function regDiagnostico(req, res) {
+    try {
+        
+        const { diagnostico,medicamentos, dietas} = req.body; 
+            await pool.query("insert into diagnostico(diagnostico,medicamentos, dietas) values ('" + diagnostico + "','" + medicamentos + "','"+ dietas + "')");
+              res.json({ message: " agregado exitosamente" });
+              console.log("aaaa");
+        
+    } catch (error) {
+        console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.post("/regDiagnostico", regDiagnostico);
