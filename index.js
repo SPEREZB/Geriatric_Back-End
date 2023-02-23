@@ -20,28 +20,34 @@ const pool = new Pool({
 //Obtener datos de prueba
 async function verificar(req, res) {
     try {  
+        //sebas 
         const { nombreusuario, clave } = req.body; 
-        let datos;  
+        let datos,cont=1;  
         let size= await pool.query("select * from usuarios"); 
-       for (let i = 1; i <= size.rows.length; i++) { 
+       for (let i = 1; cont <= size.rows.length; i++) { 
 
         datos = await pool.query("select nombreusuario from usuarios where id_usuario="+i);
    
-
+        console.log(cont); 
+        if(datos.rows.length!=0)
+        { 
+            cont++;
+            console.log(datos.rows[0].nombreusuario);  
         if(datos.rows[0].nombreusuario==nombreusuario)    
         {
-            i=size+1;
+            cont=size+1;
             res.json({ message: "INGRESO EXITOSO" }); 
         }
-          else{
-            i=size+1;
+          else{ 
+            if(cont>size.rows.length)
             res.json({ message: "CREDENCIALES INCORRECTAS" });
-          }
-
-       } 
+          } 
+       }  
+    }
+ 
     } catch (error) { 
         console.log("error");  
-        res.json({ message: " Valor ingresado no valido" });
+        res.json({ message: " Valor ingresado no valido" + error});
     } 
 } 
 app.post("/verificar", verificar);
