@@ -16,6 +16,8 @@ const pool = new Pool({
     database: 'geriatric',
     port: '5432'
 })
+
+let id_us;
  
 //Obtener datos de prueba
 async function verificar(req, res) {
@@ -24,8 +26,7 @@ async function verificar(req, res) {
         const { nombreusuario, clave } = req.body; 
         let datos,cont=1;  
         let size= await pool.query("select * from usuarios"); 
-       for (let i = 1; cont <= size.rows.length; i++) { 
-
+       for (let i = 1; cont <= size.rows.length; i++) {  
         datos = await pool.query("select nombreusuario from usuarios where id_usuario="+i);
    
         console.log(cont); 
@@ -36,6 +37,7 @@ async function verificar(req, res) {
         if(datos.rows[0].nombreusuario==nombreusuario)    
         {
             cont=size+1;
+            id_us=i;
             res.json({ message: "INGRESO EXITOSO" }); 
         }
           else{ 
@@ -71,35 +73,59 @@ async function regUsuario(req, res) {
 app.post("/regUsuario", regUsuario);
 
 //Obtener usuario
-async function getUsuario(req, res) {
+async function getUsuario(res) {
     try {
-        
-        const { nombreusuario, clave,tipousuario } = req.body; 
             await pool.query("select * from usuarios");
-              res.json({ message: " agregado exitosamente" });
-        
-    } catch (error) {
-        console.log(error); 
+    } catch (error) { 
         res.json({ message: " Valor ingresado no valido" });
     }
 } 
 app.get("/getUsuario", getUsuario);
 
 
+//Obtener doctor
+async function getDoc(req,res) {
+    try {
+        let datos = await pool.query("select * from doctor");
+            res.json(datos.rows);  
+
+    } catch (error) { 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.get("/getDoc", getDoc);
+
+
 //Obtener citas medicas
 async function getCitas(req, res) {
     try {
         let datos = await pool.query("select * from citas"); 
-        res.json(datos.rows); 
-        console.log(datos.rows);
-       
-
+        res.json(datos.rows);   
     } catch (error) {
-        console.log(error);
-        console.log("hola");
+        console.log(error); 
     }
 }
 app.get("/getCitas", getCitas);
+
+// Registrar citas
+async function regCitas(req, res) {
+    try {
+        
+        const { fecha,motivo,doc} = req.body;  
+
+            let datos = await pool.query("select id_doctor from doctor where nombre='"+doc+"'"); 
+             
+            await pool.query("insert into citas(id_paciente,id_doctor,fecha,estado,motivo) values (" + 
+            id_us+","+ datos.rows[0].id_doctor+",'"+fecha + "','Pendiente'"+ ",'"+ motivo + "')");
+              res.json({ message: " agregado exitosamente" }); 
+        
+    } catch (error) {
+        console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.post("/regCitas", regCitas);
+
 
 // Registrar diagnosticos
 async function regDiagnostico(req, res) {
@@ -116,3 +142,15 @@ async function regDiagnostico(req, res) {
     }
 } 
 app.post("/regDiagnostico", regDiagnostico);
+
+
+//Obtener medicamentos
+async function getMedi(req, res) {
+    try {
+        let datos = await pool.query("select * from medicamentos"); 
+        res.json(datos.rows);   
+    } catch (error) {
+        console.log(error); 
+    }
+}
+app.get("/getMedi", getMedi);
