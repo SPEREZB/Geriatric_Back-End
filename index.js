@@ -2,14 +2,12 @@ const { Pool } = require('pg');
 var cors = require('cors');
 const express = require('express');
 const app = express();
+const PORT=process.env.PORT || 3977;
 
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
-
-//PA RAILWAY 
-app.use(bodyParse.json());
 
 
 
@@ -57,7 +55,17 @@ async function verificar(req, res) {
     } 
 } 
 app.post("/verificar", verificar);
-app.listen(3977); 
+
+
+app.post("/w", (req,res)=>
+{
+    const {username}= req.body;
+    res.status(200).send({msg:'bienn'});
+});
+app.listen(PORT,()=>
+{
+    console.log('BIENN');
+}); 
 
 
 
