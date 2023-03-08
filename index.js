@@ -8,8 +8,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
-//PA RAILWAY
- 
+//PA RAILWAY 
+app.use(bodyParse.json());
 
 
 
@@ -57,7 +57,7 @@ async function verificar(req, res) {
     } 
 } 
 app.post("/verificar", verificar);
-app.listen(3000); 
+app.listen(3977); 
 
 
 
