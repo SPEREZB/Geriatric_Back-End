@@ -8,13 +8,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
+//PA RAILWAY
+ 
+
+
 
 const pool = new Pool({
     user: 'postgres',
-    host: 'localhost',
-    password: '123',
-    database: 'geriatric',
-    port: '5432'
+    host: 'containers-us-west-120.railway.app',
+    password: 'MyJ2IDjI6LBJIQIimUpT',
+    database: 'railway',
+    port: '7625'
 })
 
 let id_us;
