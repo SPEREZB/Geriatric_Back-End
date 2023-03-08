@@ -57,18 +57,18 @@ async function verificar(req, res) {
 app.post("/verificar", verificar);
 
 
-app.post("/w", (req,res)=>
-{
-    const {username}= req.body;
+app.get("/w", (req,res)=>
+{ 
     res.status(200).send({msg:'bienn'});
+    res.json({ message: " Valor ingresado no valido" });
 });
+
 app.listen(PORT,()=>
 {
     console.log('BIENN');
 }); 
 
-
-
+ 
 //Registrar usuario
 async function regUsuario(req, res) {
     try {
