@@ -29,7 +29,7 @@ async function verificar(req, res) {
         let datos,cont=1;  
         let size= await pool.query("select * from usuarios"); 
        for (let i = 1; cont <= size.rows.length; i++) {  
-        datos = await pool.query("select nombreusuario from usuarios where id_usuario="+i);
+        datos = await pool.query("select nombreusuario,tipousuario from usuarios where id_usuario="+i);
    
         console.log(cont); 
         if(datos.rows.length!=0)
@@ -40,7 +40,7 @@ async function verificar(req, res) {
         {
             cont=size+1;
             id_us=i;
-            res.json({ message: "INGRESO EXITOSO" }); 
+            res.json({ valor: datos.rows[0].tipousuario}); 
         }
           else{ 
             if(cont>size.rows.length)
@@ -118,6 +118,18 @@ async function getCitas(req, res) {
     }
 }
 app.get("/getCitas", getCitas);
+
+//Obtener dietas
+async function getDietas(req, res) {
+    try {
+        let datos = await pool.query("select * from dietas"); 
+        res.json(datos.rows);   
+    } catch (error) {
+        console.log(error); 
+    }
+}
+app.get("/getDietas", getDietas);
+
 
 // Registrar citas
 async function regCitas(req, res) {
