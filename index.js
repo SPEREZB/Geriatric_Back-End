@@ -72,9 +72,9 @@ app.listen(PORT,()=>
 //Registrar usuario
 async function regUsuario(req, res) {
     try {
-        
+       let i= await pool.query("select * from usuarios");
         const { nombreusuario, clave,tipousuario } = req.body; 
-            await pool.query("insert into usuarios(nombreusuario,clave, tipousuario) values ('" + nombreusuario + "','" + clave + "','"+ tipousuario + "')");
+            await pool.query("insert into usuarios(id_usuario,nombreusuario,clave, tipousuario) values ("+i.rows.length+1+",'" + nombreusuario + "','" + clave + "','"+ tipousuario + "')");
               res.json({ message: " agregado exitosamente" });
         
     } catch (error) {
