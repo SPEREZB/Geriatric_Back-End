@@ -20,6 +20,7 @@ const pool = new Pool({
 })
 
 let id_us;
+let id_cita;
  
 //Obtener datos de prueba
 async function verificar(req, res) {
@@ -73,8 +74,10 @@ app.listen(PORT,()=>
 async function regUsuario(req, res) {
     try {
        let i= await pool.query("select * from usuarios");
+       let ii = i.rows.length+1;
         const { nombreusuario, clave,tipousuario } = req.body; 
-            await pool.query("insert into usuarios(id_usuario,nombreusuario,clave, tipousuario) values ("+i.rows.length+1+",'" + nombreusuario + "','" + clave + "','"+ tipousuario + "')");
+        
+            await pool.query("insert into usuarios(id_usuario,nombreusuario,clave, tipousuario) values ("+ii+",'" + nombreusuario + "','" + clave + "','"+ tipousuario + "')");
               res.json({ message: " agregado exitosamente" });
         
     } catch (error) {
@@ -107,11 +110,23 @@ async function getDoc(req,res) {
 } 
 app.get("/getDoc", getDoc);
 
+async function getDocEspecifico(req,res) {
+    try {
+        let datos = await pool.query("select * from doctor where id_doctor="+id_us);
+            res.json(datos.rows);  
+
+    } catch (error) { 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.get("/getDocEspecifico", getDocEspecifico);
+
 
 //Obtener citas medicas
 async function getCitas(req, res) {
     try {
         let datos = await pool.query("select * from citas"); 
+        id_cita=datos.rows[0].id_citas;
         res.json(datos.rows);   
     } catch (error) {
         console.log(error); 
@@ -130,6 +145,28 @@ async function getDietas(req, res) {
 }
 app.get("/getDietas", getDietas);
 
+//Obtener medicamentos
+async function getMedi(req, res) {
+    try {
+        let datos = await pool.query("select * from medicamentos"); 
+        res.json(datos.rows);   
+    } catch (error) {
+        console.log(error); 
+    }
+}
+app.get("/getMedi", getMedi);
+
+//Obtener diagnostico
+async function getDiag(req, res) {
+    try {
+        let datos = await pool.query("select * from diagnosticos"); 
+        res.json(datos.rows);   
+    } catch (error) {
+        console.log(error); 
+    }
+}
+app.get("/getDiag", getDiag);
+
 
 // Registrar citas
 async function regCitas(req, res) {
@@ -138,9 +175,11 @@ async function regCitas(req, res) {
         const { fecha,motivo,doc} = req.body;  
 
             let datos = await pool.query("select id_doctor from doctor where nombre='"+doc+"'"); 
-             
-            await pool.query("insert into citas(id_paciente,id_doctor,fecha,estado,motivo) values (" + 
-            id_us+","+ datos.rows[0].id_doctor+",'"+fecha + "','Pendiente'"+ ",'"+ motivo + "')");
+            let i= await pool.query("select * from citas");
+            let ii = i.rows.length+1; 
+
+            await pool.query("insert into citas(id_citas,id_paciente,id_doctor,fecha,estado,motivo) values (" +  
+            ii+","+id_us+","+ datos.rows[0].id_doctor+",'"+fecha + "','Pendiente'"+ ",'"+ motivo + "')");
               res.json({ message: " agregado exitosamente" }); 
         
     } catch (error) {
@@ -155,11 +194,20 @@ app.post("/regCitas", regCitas);
 async function regDiagnostico(req, res) {
     try {
         
-        const { diagnostico,medicamentos, dietas} = req.body; 
-            await pool.query("insert into diagnostico(diagnostico,medicamentos, dietas) values ('" + diagnostico + "','" + medicamentos + "','"+ dietas + "')");
+        const { diagnostico,medi, dieta,costo,doctor,id_cita} = req.body;
+
+        let i= await pool.query("select * from diagnosticos");
+        let ii = i.rows.length+1;
+
+
+            await pool.query("insert into diagnosticos(id_diagnostico,diagnostico,medicamento, dieta,costo,doctor) values (" +
+            ii+",'"+diagnostico + "','" + medi + "','"+ dieta +"',"+costo+",'Sebastian')");
+
+            await pool.query("UPDATE citas SET estado = 'Atendida'  WHERE id_citas = "+1);
               res.json({ message: " agregado exitosamente" });
-              console.log("aaaa");
-        
+     
+       
+
     } catch (error) {
         console.log(error); 
         res.json({ message: " Valor ingresado no valido" });
@@ -168,13 +216,60 @@ async function regDiagnostico(req, res) {
 app.post("/regDiagnostico", regDiagnostico);
 
 
-//Obtener medicamentos
-async function getMedi(req, res) {
+//Registrar medicamentos
+async function regMedi(req, res) {
     try {
-        let datos = await pool.query("select * from medicamentos"); 
-        res.json(datos.rows);   
+        
+        const { nombre,laboratorio,cantidad,costo,uso,efectos_secundarios} = req.body;  
+
+        
+            let i= await pool.query("select * from medicamentos");
+            let ii = i.rows.length+1;
+
+            await pool.query("insert into medicamentos(id_medicamento,nombre,laboratorio,cantidad,costo,uso,efectos_secundarios) values (" + 
+            ii+",'"+nombre+"','"+laboratorio+"',"+cantidad+","+costo+",'"+uso+"','"+efectos_secundarios+"')");
+              res.json({ message: " agregado exitosamente" }); 
+        
     } catch (error) {
         console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
     }
-}
-app.get("/getMedi", getMedi);
+} 
+app.post("/regMedi", regMedi);
+
+//Agregar medicamentos
+async function aggMedi(req, res) {
+    try {
+        
+        const { id_medicamento,cant} = req.body;   
+
+            await pool.query("UPDATE medicamentos SET cantidad = "+cant+" WHERE id_medicamento = "+id_medicamento);
+              res.json({ message: " agregado exitosamente" }); 
+        
+    } catch (error) {
+        console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.post("/aggMedi", aggMedi);
+
+//Registrar dietas
+async function regDietas(req, res) {
+    try {
+        const { nombre,lunes,martes,miercoles,jueves,viernes,sabado,domingo,costo} = req.body;  
+
+        
+        let i= await pool.query("select * from dietas");
+        let ii = i.rows.length+1;
+
+        await pool.query("insert into dietas(id_dietas,nombre,lunes,martes,miercoles,jueves,viernes,sabado,domingo,costo) values (" + 
+        ii+",'"+nombre+"','"+lunes+"','"+martes+"','"+miercoles+"','"+jueves+"','"+viernes+"','"+sabado+"','"+domingo+"',"+costo+")");
+          res.json({ message: " agregado exitosamente" }); 
+        
+        
+    } catch (error) {
+        console.log(error); 
+        res.json({ message: " Valor ingresado no valido" });
+    }
+} 
+app.post("/regDietas", regDietas);
